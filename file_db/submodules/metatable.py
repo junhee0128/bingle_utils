@@ -16,6 +16,38 @@ class MetaTable(Table):
         super().__init__(file_path=self.table_path, primary_keys=self.metadata["primary_keys"])
         self.row_class = self._generate_row_class()
 
+    def select(self, condition: dict) -> List:
+        """
+        Retrieve records matching a condition as dataclass instances.
+        """
+        dict_records = super().select(condition)
+        return [self._dict_to_dataclass(record) for record in dict_records]
+
+    def insert(self, records: List):
+        """
+        Insert dataclass instances or dictionaries into the table.
+        Automatically converts dictionaries to dataclass instances.
+        """
+        dataclass_records = [
+            self._dict_to_dataclass(record) if isinstance(record, dict) else record
+            for record in records
+        ]
+        dict_records = [self._dataclass_to_dict(record) for record in dataclass_records]
+        super().insert(dict_records)
+
+    def delete(self, condition: dict):
+        super().delete(condition)
+
+    def select_all(self) -> List:
+        """
+        Retrieve all records as dataclass instances.
+        """
+        dict_records = super().select_all()
+        return [self._dict_to_dataclass(record) for record in dict_records]
+
+    def insert_one(self, record):
+        self.insert(records=[record])
+
     def _generate_row_class(self):
         """
         Generate a dataclass dynamically based on the metadata.
@@ -39,38 +71,3 @@ class MetaTable(Table):
         Convert a dataclass instance to a dictionary.
         """
         return {field.name: getattr(instance, field.name) for field in fields(self.row_class)}
-
-    def delete(self, condition: dict):
-        super().delete(condition)
-
-    def insert(self, records: List):
-        """
-        Insert dataclass instances or dictionaries into the table.
-        Automatically converts dictionaries to dataclass instances.
-        """
-        dataclass_records = [
-            self._dict_to_dataclass(record) if isinstance(record, dict) else record
-            for record in records
-        ]
-        dict_records = [self._dataclass_to_dict(record) for record in dataclass_records]
-        super().insert(dict_records)
-
-    def insert_one(self, record):
-        self.insert(records=[record])
-
-    def select_all(self) -> List:
-        """
-        Retrieve all records as dataclass instances.
-        """
-        dict_records = super().select_all()
-        return [self._dict_to_dataclass(record) for record in dict_records]
-
-    def select(self, condition: dict) -> List:
-        """
-        Retrieve records matching a condition as dataclass instances.
-        """
-        dict_records = super().select(condition)
-        return [self._dict_to_dataclass(record) for record in dict_records]
-
-    def select_one(self, condition: dict):
-        return self.select(condition=condition)[0]
