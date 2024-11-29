@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='bingle_utils',
+    name='bingle',
     version='0.1.1',
     author='junhee',
     packages=find_packages(include=['file_db', 'utils']),
