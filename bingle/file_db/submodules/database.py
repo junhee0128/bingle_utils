@@ -6,8 +6,8 @@ import shutil
 from typing import Type, List
 from dataclasses import fields
 from datetime import datetime
-from file_db.submodules.metatable import MetaTable
-from utils.file_processor import FileProcessor
+from bingle.file_db.submodules.metatable import MetaTable
+from bingle.utils.file_processor import FileProcessor
 
 
 class Database:

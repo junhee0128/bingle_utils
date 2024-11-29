@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     from dataclasses import dataclass
-    from file_db.file_db_manager import FileDBManager
+    from bingle import FileDBManager
 
 
     @dataclass
