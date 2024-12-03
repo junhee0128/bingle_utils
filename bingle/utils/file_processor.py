@@ -9,10 +9,28 @@ class FileProcessor:
         return filepath is not None and os.path.exists(filepath)
 
     @staticmethod
-    def load_txt(filepath: str) -> str:
-        with open(filepath, 'r') as f:
-            contents = f.readlines()
-        return "\n".join(contents)
+    def load_txt(filepath: str, how: str = "whole") -> str:
+        content = None
+        for encoding in ["cp949", "utf-16", "utf-8"]:
+            try:
+                with open(filepath, "r", encoding=encoding) as f:
+                    if how == "whole":
+                        content = f.read()
+                        break
+                    elif how == "linebyline":
+                        content_list = f.readlines()
+                        if isinstance(content_list, list):
+                            content = "\n".join(content_list)
+                        break
+                    else:
+                        raise NotImplementedError
+            except Exception as e:
+                pass
+
+        if content is None:
+            raise FileNotFoundError(f"Failed to read '{filepath}'.")
+
+        return content
 
     @staticmethod
     def save_txt(filepath: str, obj: str, mode: str = "w", encoding: str = "utf-8"):
