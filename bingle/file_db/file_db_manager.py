@@ -66,6 +66,9 @@ class FileDBManager:
         else:
             raise FileNotFoundError(f"Database '{name}' does not exist.")
 
+    def clear_all(self):
+        self._clear_folder(self.root_dir)
+
     def clear_trash(self):
         self._clear_folder(self.trash_dir)
 
