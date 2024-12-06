@@ -18,7 +18,7 @@ class PortKiller:
     def _kill_processes(pid_list: List[int]):
         for pid in pid_list:
             os.kill(pid, signal.SIGILL)
-            print(f"- Process {pid} has been killed.")
+            print(f"(Process {pid} has been killed.)")
 
     @staticmethod
     def _get_os(in_detail: bool) -> str:
