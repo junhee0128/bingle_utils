@@ -1,7 +1,7 @@
 from typing import List
 from dataclasses import fields, make_dataclass
-from bingle.file_db.submodules.table import Table
 from bingle.utils.file_processor import FileProcessor
+from .table import Table
 
 
 class MetaTable(Table):

@@ -1,0 +1,19 @@
+{
+  "endpoint_uri": "https://{endpoint}/openai/deployments/{deployment-id}/{resource_path}",
+  "headers": {
+    "api-key": "{apikey}",
+    "Content-Type": "application/json"
+  },
+  "resource_path": {
+    "chat": "chat/completions?api-version={api_version}"
+  },
+  "default": {
+    "chat": {
+    }
+  },
+  "uri_params": {
+    "api_version": "2024-02-15-preview",
+    "endpoint": "",
+    "deployment-id": "gpt-4o-mini"
+  }
+}

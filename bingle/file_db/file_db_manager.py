@@ -1,7 +1,7 @@
 import os
 import shutil
 from datetime import datetime
-from .submodules.database import Database
+from . import Database
 
 
 class FileDBManager:

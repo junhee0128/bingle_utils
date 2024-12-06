@@ -1,20 +1,19 @@
-if __name__ == "__main__":
-    from dataclasses import dataclass
-    from bingle import FileDBManager
+from dataclasses import dataclass
+from bingle.file_db import FileDBManager
 
 
+def test_file_db(db_dir: str):
     @dataclass
     class MyRow:
         key: str
         name: str
         age: int
 
-
     db_name = "my_database"
     tb_name = "my_table"
     tb_new_name = "my_new_table"
 
-    dbm = FileDBManager(base_dir="../")
+    dbm = FileDBManager(base_dir=db_dir)
 
     # DB 생성 테스트.
     dbm.show_dbs()
@@ -49,9 +48,6 @@ if __name__ == "__main__":
 
     rows = tb.select(condition={"name": "Alice"})
     print(rows)
-
-    row = tb.select_one(condition={"name": "Bob"})
-    print(row)
 
     tb.insert_one({"key": "4", "name": "James", "age": 22})
     tb.insert_one(MyRow(key="5", name="John", age=24))
@@ -89,3 +85,7 @@ if __name__ == "__main__":
     dbm.clear_snapshot()
 
     dbm.show_dbs()
+
+
+if __name__ == "__main__":
+    test_file_db(db_dir="../")

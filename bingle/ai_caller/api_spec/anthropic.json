@@ -1,0 +1,17 @@
+{
+  "endpoint_uri": "https://api.anthropic.com/{resource_path}",
+  "headers": {
+    "x-api-key": "{apikey}",
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json"
+  },
+  "resource_path": {
+    "chat": "v1/messages"
+  },
+  "default": {
+    "chat": {
+      "model": "claude-3-5-haiku-latest",
+      "max_tokens": 1024
+    }
+  }
+}

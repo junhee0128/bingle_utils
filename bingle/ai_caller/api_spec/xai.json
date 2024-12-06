@@ -1,0 +1,15 @@
+{
+  "endpoint_uri": "https://api.x.ai/{resource_path}",
+  "headers": {
+    "Authorization": "Bearer {apikey}",
+    "Content-Type": "application/json"
+  },
+  "resource_path": {
+    "chat": "vi/chat/completions"
+  },
+  "default": {
+    "chat": {
+      "model": "grok-beta"
+    }
+  }
+}

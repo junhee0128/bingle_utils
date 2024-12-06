@@ -1,0 +1,15 @@
+{
+  "endpoint_uri": "https://api.llama-api.com/{resource_path}",
+  "headers": {
+    "Authorization": "Bearer {apikey}",
+    "Content-Type": "application/json"
+  },
+  "resource_path": {
+    "chat": "chat/completions"
+  },
+  "default": {
+    "chat": {
+      "model": "llama3.2-3b"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "endpoint_uri": "https://api.openai.com/{resource_path}",
+  "headers": {
+    "Authorization": "Bearer {apikey}",
+    "Content-Type": "application/json"
+  },
+  "resource_path": {
+    "chat": "v1/chat/completions"
+  },
+  "default": {
+    "chat": {
+      "model": "gpt-4o-mini"
+    }
+  }
+}

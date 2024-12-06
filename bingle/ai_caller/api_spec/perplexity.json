@@ -1,0 +1,15 @@
+{
+  "endpoint_uri": "https://api.perplexity.ai/{resource_path}",
+  "headers": {
+    "Authorization": "Bearer {apikey}",
+    "Content-Type": "application/json"
+  },
+  "resource_path": {
+    "chat": "chat/completions"
+  },
+  "default": {
+    "chat": {
+      "model": "llama-3.1-sonar-small-128k-online"
+    }
+  }
+}
