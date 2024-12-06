@@ -4,6 +4,15 @@ from bingle.ai_caller import AICaller
 from bingle.utils import FileProcessor
 
 
+def get_sample_messages() -> List[dict]:
+    from bingle.ai_prompter import Messages, Prompt
+
+    messages = Messages([Prompt(role='system', content="You are a helpful assistant."),
+                         Prompt(role='user', content="What is your name?")])
+
+    return messages.to_dict()
+
+
 def test_ai_caller(apikeys: Dict[str, str]) -> (dict, dict):
     service = "chat"
     responses = dict()
@@ -12,12 +21,7 @@ def test_ai_caller(apikeys: Dict[str, str]) -> (dict, dict):
     for provider, apikey in apikeys.items():
         ai_caller = AICaller(provider=provider, service=service, apikey=apikey)
 
-        messages = [
-            {"role": "system",
-             "content": [{"type": "text", "text": "You are a helpful assistant."}]},
-            {"role": "user",
-             "content": [{"type": "text", "text": "What is your name?"}]}
-        ]
+        messages = get_sample_messages()
 
         api_spec_dir = "./api_spec"
         ai_caller.copy_default_api_spec_to(to_dir=api_spec_dir, ignore_error=True)
