@@ -2,7 +2,6 @@ from bingle.utils import BracketContentExtractor
 
 
 def test_bracket_content_extractor():
-    BracketContentExtractor()
     text = "Here are [square brackets], (round brackets), {curly braces}, and {nested {example}}."
     extractor = BracketContentExtractor()
 
@@ -13,6 +12,8 @@ def test_bracket_content_extractor():
     print("- Square brackets (nested allowed):", extractor.extract_square(text, allow_nested=True))
     print("- Round brackets (nested allowed):", extractor.extract_round(text, allow_nested=True))
     print("- Curly braces (nested allowed):", extractor.extract_curly(text, allow_nested=True))
+
+    print("- Curly braces (nested allowed):", BracketContentExtractor()(text, bracket_type="curly", allow_nested=True))
 
 
 if __name__ == "__main__":
