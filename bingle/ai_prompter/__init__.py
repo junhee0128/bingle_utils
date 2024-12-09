@@ -1,1 +1,1 @@
-from .object import Content, Prompt, Messages
+from .object import Content, Prompt, Messages, TemplateContent
