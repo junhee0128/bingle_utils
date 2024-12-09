@@ -3,7 +3,7 @@ import shutil
 from typing import List, Dict
 from bingle.utils import APIClient
 from .src.ai_api_spec import AIAPISpec
-from . import AICallDataFormatter
+from .src.call_data_formatter import AICallDataFormatter
 
 
 class AICaller(AICallDataFormatter):
