@@ -1,11 +1,9 @@
 from typing import Dict, List
-from dataclasses import dataclass
 from natsort import natsorted
 from bingle.utils import BracketContentExtractor
 from . import Content
 
 
-@dataclass
 class TemplateContent(Content):
     type: str = "text"
 
