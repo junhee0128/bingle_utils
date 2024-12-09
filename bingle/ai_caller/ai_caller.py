@@ -3,13 +3,15 @@ import shutil
 from typing import List, Dict
 from bingle.utils import APIClient
 from .src.ai_api_spec import AIAPISpec
+from . import AICallDataFormatter
 
 
-class AICaller:
+class AICaller(AICallDataFormatter):
     APIKEY_ENV_NAME: str = "BINGLE_APIKEY"
     PROVIDERS: List[str] = ["openai", "llamaapi", "perplexity", "anthropic", "xai", "azure_openai"]
 
     def __init__(self, provider: str, service: str, apikey: str = None):
+        AICallDataFormatter.__init__(self)
         if provider in self.list_providers():
             self.provider = provider
             self.service = service
@@ -21,7 +23,8 @@ class AICaller:
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    def complete(self, messages: List[Dict], model: str = None, return_payload: bool = False, api_spec_dir: str = None):
+    def complete(self, messages: List[Dict], model: str = None, return_payload: bool = False, api_spec_dir: str = None,
+                 standardize_format: bool = True):
         api_spec = AIAPISpec(provider=self.provider, service=self.service,
                              apikey=self._get_apikey(), api_spec_dir=api_spec_dir)
 
@@ -30,6 +33,10 @@ class AICaller:
 
         # API Call
         response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
+
+        if standardize_format and self.provider == 'anthropic':
+            payload = self.convert_anthropic_payload(payload=payload)
+            response = self.convert_anthropic_response(response=response)
 
         if return_payload:
             return response, payload

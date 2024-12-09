@@ -20,15 +20,7 @@ class AICallObjectHandler(AICallDataFormatter):
             err_args = self._get_error_args(meta_args=meta_args, response=response)
         elif isinstance(response, dict):
             summ_args = self._get_summary_args(meta_args=meta_args, payload=payload, response=response)
-
-            if provider == 'anthropic':
-                payload = self.convert_anthropic_payload(payload=payload)
-
             p_args_list = self._get_prompt_args_list(meta_args=meta_args, payload=payload, response=response)
-
-            if provider == 'anthropic':
-                response = self.convert_anthropic_response(response=response)
-
             c_args_list = self._get_completion_args_list(meta_args=meta_args, response=response)
         else:
             raise NotImplementedError()
