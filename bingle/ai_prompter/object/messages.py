@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+from collections import Counter
 from . import Prompt
 
 
@@ -15,3 +16,6 @@ class Messages:
 
     def pop(self, index: int = -1):
         return self.prompts.pop(index)
+
+    def count_roles(self) -> Counter:
+        return Counter([p.role for p in self.prompts])
