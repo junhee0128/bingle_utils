@@ -14,22 +14,23 @@ class BracketContentExtractor:
                                                        }
                                         }
 
-    def __call__(self, text: str, bracket_type: Literal["square", "round", "curly"], allow_nested: bool = False):
+    def __call__(self, text: str, bracket_type: Literal["square", "round", "curly"], allow_nested: bool = False) -> \
+    List[str]:
         return self._extract(text=text, bracket_type=bracket_type, allow_nested=allow_nested)
 
-    def extract_square(self, text: str, allow_nested: bool = False):
+    def extract_square(self, text: str, allow_nested: bool = False) -> List[str]:
         """Extract content inside square brackets []"""
         return self._extract(text=text, bracket_type="square", allow_nested=allow_nested)
 
-    def extract_round(self, text: str, allow_nested: bool = False):
+    def extract_round(self, text: str, allow_nested: bool = False) -> List[str]:
         """Extract content inside round brackets ()"""
         return self._extract(text=text, bracket_type="round", allow_nested=allow_nested)
 
-    def extract_curly(self, text: str, allow_nested: bool = False):
+    def extract_curly(self, text: str, allow_nested: bool = False) -> List[str]:
         """Extract content inside curly braces {}"""
         return self._extract(text=text, bracket_type="curly", allow_nested=allow_nested)
 
-    def _extract(self, text: str, bracket_type: str, allow_nested: bool):
+    def _extract(self, text: str, bracket_type: str, allow_nested: bool) -> List[str]:
         """Extract content inside brackets"""
         regex = self.REGEX["nested" if allow_nested else "non_nested"][bracket_type]
         return re.findall(regex, text)

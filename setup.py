@@ -15,6 +15,7 @@ setup(
         'pandas>=2.2.3',
         'pyarrow>=18.1.0',
         'numpy>=1.26.2',
-        'requests>=2.32.3'
+        'requests>=2.32.3',
+        'natsort>=8.4.0'
     ]
 )
