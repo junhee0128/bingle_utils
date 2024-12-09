@@ -15,7 +15,7 @@ class AICallDataFormatter:
         choices = list()
         for idx, c in enumerate(response['content']):
             choice = {'index': idx,
-                      'message': {'role': response['role'], 'content': c},
+                      'message': {'role': response['role'], 'content': [c]},
                       'stop_reason': response['stop_reason']}
             choices.append(choice)
         _response['choices'] = choices
