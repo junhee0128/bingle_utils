@@ -7,8 +7,10 @@ from . import Content
 
 @dataclass
 class TemplateContent(Content):
-    role: str = "text"
-    content: str
+    type: str = "text"
+
+    def __init__(self, content: str):
+        self.content = content
 
     def get_varnames(self) -> List[str]:
         return BracketContentExtractor()(text=self.content, bracket_type="curly")
