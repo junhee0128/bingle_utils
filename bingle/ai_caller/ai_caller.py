@@ -29,7 +29,7 @@ class AICaller:
         payload = self._get_payload(default=api_spec.default, messages=messages, model=model)
 
         # API Call
-        response = APIClient().post(payload=payload, **api_spec.__dict__)
+        response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
 
         if return_payload:
             return response, payload
