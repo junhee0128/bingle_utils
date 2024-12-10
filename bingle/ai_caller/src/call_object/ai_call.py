@@ -1,34 +1,64 @@
 from dataclasses import dataclass
 from typing import List
-from . import AICallError, AICallSummary, AICallPrompt, AICallCompletion
+from .ai_call_summary import AICallSummary
+from .ai_call_usage import AICallUsage
+from .ai_call_prompt import AICallPrompt
+from .ai_call_completion import AICallCompletion
 
 
 @dataclass
 class AICall:
-    error: AICallError = None
     summary: AICallSummary = None
+    usage: AICallUsage = None
     prompts: List[AICallPrompt] = None
     completions: List[AICallCompletion] = None
 
-    def _get_call_ids(self) -> list:
-        call_ids = list()
-        if self.error:
-            call_ids.append(self.error.call_id)
-        if self.summary:
-            call_ids.append(self.summary.call_id)
-        if self.prompts:
-            call_ids.extend([p.call_id for p in self.prompts])
-        if self.completions:
-            call_ids.extend([c.call_id for c in self.completions])
-        call_ids = list(set(call_ids))
-        return call_ids
+    def reset_from_summary(self, summary: AICallSummary):
+        self.summary = AICallSummary(**summary.to_dict())
+        if summary.success:
+            usage_args = self._get_usage_args(summary=summary)
+            p_args_list = self._get_prompt_args_list(summary=summary)
+            c_args_list = self._get_completion_args_list(summary=summary)
 
-    def get_call_id(self) -> str:
-        call_ids = self._get_call_ids()
-        if len(call_ids) == 1:
-            return call_ids[0]
-        else:
-            raise NotImplementedError()
+            self.usage = AICallUsage(**usage_args)
+            self.prompts = [AICallPrompt(**_args) for _args in p_args_list]
+            self.completions = [AICallCompletion(**_args) for _args in c_args_list]
 
-    def __bool__(self):
-        return len(self._get_call_ids()) == 1
+    @staticmethod
+    def _get_usage_args(summary: AICallSummary) -> dict:
+        usage_args = summary.to_dict().copy()
+        usage_args.update(summary.payload)
+        usage_args.update(summary.response)
+        return usage_args
+
+    @staticmethod
+    def _get_completion_args_list(summary: AICallSummary) -> List[dict]:
+        c_args_list = list()
+        for choice in summary.response['choices']:
+            c_args = summary.to_dict()
+            c_args.update(summary.response.copy())
+            c_args.update({'choice': choice})
+            c_args_list.append(c_args)
+        return c_args_list
+
+    @staticmethod
+    def _get_prompt_args_list(summary: AICallSummary) -> List[dict]:
+        _meta_args = summary.to_dict()
+
+        p_args_list = list()
+        for msg_idx, msg in enumerate(summary.payload['messages']):
+            if isinstance(msg['content'], list):
+                for c_idx, c in enumerate(msg['content']):
+                    p_args = _meta_args.copy()
+                    p_args.update(summary.payload.copy())
+                    p_args.update({'message_idx': msg_idx, 'content_idx': c_idx, 'role': msg['role'], 'content': c})
+                    p_args_list.append(p_args)
+            elif isinstance(msg['content'], str):
+                p_args = _meta_args.copy()
+                p_args.update(summary.payload.copy())
+                p_args.update(
+                    {'message_idx': msg_idx, 'content_idx': 0, 'role': msg['role'], 'content': msg['content']})
+                p_args_list.append(p_args)
+            else:
+                raise NotImplementedError()
+        return p_args_list

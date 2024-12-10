@@ -1,7 +1,9 @@
 import os
 import shutil
+import traceback
 from typing import List, Dict
 from bingle.utils import APIClient
+from .src.call_object import AICallSummary
 from .src.ai_api_spec import AIAPISpec
 from .src.call_data_formatter import AICallDataFormatter
 
@@ -25,24 +27,28 @@ class AICaller(AICallDataFormatter):
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    def complete(self, messages: List[Dict], model: str = None, return_payload: bool = False,
-                 standardize_format: bool = True):
+    def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True) -> AICallSummary:
         api_spec = self._load_ai_api_spec()
+        _model = api_spec.default['model'] if model is None else model
 
-        # Payload 세팅.
-        payload = self._get_payload(default=api_spec.default, messages=messages, model=model)
+        try:
+            # Payload 세팅.
+            payload = self._get_payload(default=api_spec.default, messages=messages, model=_model)
 
-        # API Call
-        response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
+            # API Call
+            response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
 
-        if standardize_format and self.provider == 'anthropic':
-            payload = self.convert_anthropic_payload(payload=payload)
-            response = self.convert_anthropic_response(response=response)
+            if standardize_format and self.provider == 'anthropic':
+                payload = self.convert_anthropic_payload(payload=payload)
+                response = self.convert_anthropic_response(response=response)
 
-        if return_payload:
-            return response, payload
-        else:
-            return response
+            summary = AICallSummary(provider=self.provider, service=self.service, model=_model, success=True)
+            summary.insert_payload(payload)
+            summary.insert_response(response)
+            return summary
+        except Exception as e:
+            return AICallSummary(provider=self.provider, service=self.service, model=_model, success=False,
+                                 error=e.__class__.__name__, message=str(e), traceback=traceback.format_exc())
 
     def list_models(self) -> List[str]:
         api_spec = self._load_ai_api_spec()

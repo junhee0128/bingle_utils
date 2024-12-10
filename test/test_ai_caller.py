@@ -13,10 +13,9 @@ def get_sample_messages() -> List[dict]:
     return messages.to_dict()
 
 
-def test_ai_caller(apikeys: Dict[str, str]) -> (dict, dict):
+def test_ai_caller(apikeys: Dict[str, str]) -> dict:
     service = "chat"
-    responses = dict()
-    payloads = dict()
+    call_summaries = dict()
 
     for provider, apikey in apikeys.items():
         api_spec_dir = "./api_spec"
@@ -24,11 +23,11 @@ def test_ai_caller(apikeys: Dict[str, str]) -> (dict, dict):
 
         messages = get_sample_messages()
 
-        responses[provider], payloads[provider] = ai_caller.complete(messages=messages, return_payload=True)
+        call_summaries[provider] = ai_caller.complete(messages=messages)
 
-        print(f"[{provider}] {responses[provider]}")
+        print(f"[{provider}] {call_summaries[provider].response}")
 
-    return responses, payloads
+    return call_summaries
 
 
 def load_credentials(credential_dir: str, providers: List[str] = AICaller.PROVIDERS) -> Dict[str, str]:
@@ -42,7 +41,7 @@ def load_credentials(credential_dir: str, providers: List[str] = AICaller.PROVID
 
 
 if __name__ == "__main__":
-    resp, payl = test_ai_caller(
-        apikeys=load_credentials(credential_dir="C:/Users/junhe/.credentials", providers=["openai"]))
+    call_summ = test_ai_caller(
+        apikeys=load_credentials(credential_dir="C:/Users/junhe/.credentials"))
 
     print("done")

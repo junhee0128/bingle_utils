@@ -21,7 +21,7 @@ class AICallPrompt:
             if k in self.__annotations__:
                 self.__dict__[k] = v
 
-        if 'content' in kwargs:
+        if "content" in kwargs:
             self.type, self.content = self._extract_type_and_content(kwargs['content'])
 
     @staticmethod

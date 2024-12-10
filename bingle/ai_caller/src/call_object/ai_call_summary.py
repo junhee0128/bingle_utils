@@ -1,37 +1,64 @@
 from dataclasses import dataclass
+from uuid import uuid4
+from datetime import datetime
 from typing import List
 
 
 @dataclass
 class AICallSummary:
-    call_id: str
     provider: str
     service: str
+    success: bool
     model: str
-    id: str
-    completion_tokens: int
-    prompt_tokens: int
-    total_tokens: int
-    created: int
+    call_id: str = None
+    error: str = None
+    message: str = None
+    traceback: str = None
+    id: str = None
+    created: int = None
+    payload: dict = None
+    response: dict = None
 
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            if k in self.__annotations__:
-                self.__dict__[k] = v
+        for k in self.__annotations__:
+            if k in kwargs:
+                if k not in self._get_temp_args():
+                    self.__dict__[k] = kwargs[k]
+            else:
+                self.__dict__[k] = None
 
-        if 'prompt_tokens' not in kwargs.keys():
-            self.prompt_tokens = self._get_one_of_any(data=kwargs['usage'], keys=['prompt_tokens', 'input_tokens'])
-        if 'completion_tokens' not in kwargs.keys():
-            self.completion_tokens = self._get_one_of_any(data=kwargs['usage'],
-                                                          keys=['completion_tokens', 'output_tokens'])
-        if 'total_tokens' not in kwargs.keys():
-            self.total_tokens = kwargs['usage']['total_tokens'] if 'total_tokens' in kwargs[
-                'usage'] else self.prompt_tokens + self.completion_tokens
+        if self.call_id is None:
+            self.call_id = self._get_call_id()
+        if self.created is None:
+            self.created = int(datetime.now().timestamp())
 
     @staticmethod
-    def _get_one_of_any(data: dict, keys: List[str]):
-        for k in keys:
-            if k in data.keys():
-                return data[k]
+    def _get_call_id():
+        return str(uuid4())
 
-        raise NotImplementedError()
+    def insert_payload(self, payload: dict):
+        self.payload = payload
+        if 'model' in payload and payload['model'] is not None:
+            self.model = payload['model']
+
+    def insert_response(self, response: dict):
+        self.response = response
+        self.id = response['id'] if 'id' in response else f'{self.provider}_{str(uuid4())}'
+        if 'created' in response and response['created'] is not None:
+            self.created = response['created']
+        if 'model' in response and response['model'] is not None:
+            self.model = response['model']
+
+    @staticmethod
+    def _get_temp_args() -> List[str]:
+        return ['payload', 'response']
+
+    def to_dict(self) -> dict:
+        _dict = dict()
+        for k in self.__annotations__:
+            if k not in self._get_temp_args():
+                if k in self.__dict__:
+                    _dict[k] = self.__dict__[k]
+                else:
+                    _dict[k] = None
+        return {k: self.__dict__[k] for k in self.__annotations__ if k not in self._get_temp_args()}
