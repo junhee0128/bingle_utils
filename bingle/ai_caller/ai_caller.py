@@ -10,23 +10,24 @@ class AICaller(AICallDataFormatter):
     APIKEY_ENV_NAME: str = "BINGLE_APIKEY"
     PROVIDERS: List[str] = ["openai", "llamaapi", "perplexity", "anthropic", "xai", "azure_openai"]
 
-    def __init__(self, provider: str, service: str, apikey: str = None):
+    def __init__(self, provider: str, service: str, apikey: str = None, api_spec_dir: str = None):
         AICallDataFormatter.__init__(self)
         if provider in self.list_providers():
             self.provider = provider
             self.service = service
+            self.api_spec_dir = api_spec_dir
             if apikey is not None:
                 os.environ[self.APIKEY_ENV_NAME] = apikey
+            self._copy_default_api_spec_to(to_dir=api_spec_dir, ignore_error=True)
         else:
             raise NotImplementedError(f"Not supported for the provider '{provider}'.")
 
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    def complete(self, messages: List[Dict], model: str = None, return_payload: bool = False, api_spec_dir: str = None,
+    def complete(self, messages: List[Dict], model: str = None, return_payload: bool = False,
                  standardize_format: bool = True):
-        api_spec = AIAPISpec(provider=self.provider, service=self.service,
-                             apikey=self._get_apikey(), api_spec_dir=api_spec_dir)
+        api_spec = self._load_ai_api_spec()
 
         # Payload 세팅.
         payload = self._get_payload(default=api_spec.default, messages=messages, model=model)
@@ -42,6 +43,14 @@ class AICaller(AICallDataFormatter):
             return response, payload
         else:
             return response
+
+    def list_models(self) -> List[str]:
+        api_spec = self._load_ai_api_spec()
+        return api_spec.supported_models
+
+    def _load_ai_api_spec(self) -> AIAPISpec:
+        return AIAPISpec(provider=self.provider, service=self.service,
+                         apikey=self._get_apikey(), api_spec_dir=self.api_spec_dir)
 
     def _get_apikey(self):
         return os.environ[self.APIKEY_ENV_NAME]
@@ -74,7 +83,7 @@ class AICaller(AICallDataFormatter):
                 "azure_openai": "https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=python-secure%2Cglobal-standard%2Cstandard-chat-completions"}
 
     @staticmethod
-    def copy_default_api_spec_to(to_dir: str, ignore_error: bool = False):
+    def _copy_default_api_spec_to(to_dir: str, ignore_error: bool = False):
         if os.path.exists(to_dir):
             if not ignore_error:
                 raise FileExistsError(f"Directory '{os.path.abspath(to_dir)}' already exists.")

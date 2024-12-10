@@ -11,5 +11,14 @@
     "chat": {
       "model": "llama3.2-3b"
     }
-  }
+  },
+  "supported_models": [
+    "llama3.2-1b",
+    "llama3.2-3b",
+    "llama3.2-11b-vision",
+    "llama3.2-90b-vision",
+    "llama3.3-70b",
+    "gemma2-9b",
+    "gemma2-27b"
+  ]
 }

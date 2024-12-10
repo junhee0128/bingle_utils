@@ -19,15 +19,12 @@ def test_ai_caller(apikeys: Dict[str, str]) -> (dict, dict):
     payloads = dict()
 
     for provider, apikey in apikeys.items():
-        ai_caller = AICaller(provider=provider, service=service, apikey=apikey)
+        api_spec_dir = "./api_spec"
+        ai_caller = AICaller(provider=provider, service=service, apikey=apikey, api_spec_dir=api_spec_dir)
 
         messages = get_sample_messages()
 
-        api_spec_dir = "./api_spec"
-        ai_caller.copy_default_api_spec_to(to_dir=api_spec_dir, ignore_error=True)
-
-        responses[provider], payloads[provider] = ai_caller.complete(messages=messages, return_payload=True,
-                                                                     api_spec_dir=api_spec_dir)
+        responses[provider], payloads[provider] = ai_caller.complete(messages=messages, return_payload=True)
 
         print(f"[{provider}] {responses[provider]}")
 

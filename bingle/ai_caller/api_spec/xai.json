@@ -11,5 +11,9 @@
     "chat": {
       "model": "grok-beta"
     }
-  }
+  },
+  "supported_models": [
+    "grok-beta",
+    "grok-vision-beta"
+  ]
 }
