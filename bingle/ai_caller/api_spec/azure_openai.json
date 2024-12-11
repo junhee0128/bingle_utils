@@ -9,6 +9,7 @@
   },
   "default": {
     "chat": {
+      "model": "gpt-4o-mini"
     }
   },
   "supported_models": [

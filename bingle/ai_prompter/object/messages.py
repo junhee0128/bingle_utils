@@ -22,3 +22,11 @@ class Messages:
 
     def count_roles(self) -> Counter:
         return Counter([p.role for p in self.prompts])
+
+    def get_role_prompts(self, roles: List[str] = None, exclude_roles: List[str] = None) -> List[Prompt]:
+        prompts = self.prompts
+        if roles is not None:
+            prompts = [p for p in prompts if p.role in roles]
+        if exclude_roles is not None:
+            prompts = [p for p in prompts if p.role not in exclude_roles]
+        return prompts

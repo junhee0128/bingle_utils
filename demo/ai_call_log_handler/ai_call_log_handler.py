@@ -1,3 +1,5 @@
+import pandas as pd
+from datetime import datetime
 from bingle.ai_caller import AICall, AICallSummary, AICallUsage, AICallPrompt, AICallCompletion
 from . import AICallDBManager
 
@@ -39,3 +41,20 @@ class AICallLogHandler(AICallDBManager):
         completions = [AICallCompletion(**_args) for _args in [c.__dict__ for c in completions]]
 
         return AICall(summary=summary, usage=usage, prompts=prompts, completions=completions)
+
+    def load_summary_table(self) -> pd.DataFrame:
+        df_summary = self._load_table(name=self.tb_name_summary).to_pandas()
+        df_summary['created'] = df_summary['created'].apply(
+            lambda ts: datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M%S.%f')
+        )
+        return df_summary
+
+    @staticmethod
+    def to_dict(ai_call: AICall) -> dict:
+        d_call = {k: v for k, v in ai_call.summary.to_dict().items() if v is not None}
+        d_call['usage'] = {k: v for k, v in ai_call.usage.__dict__.items() if k not in d_call or v != d_call[k]}
+        d_call['prompts'] = [{k: v for k, v in p.__dict__.items() if k not in d_call or v != d_call[k]} for p in
+                             ai_call.prompts]
+        d_call['completions'] = [{k: v for k, v in c.__dict__.items() if k not in d_call or v != d_call[k]} for c in
+                                 ai_call.completions]
+        return d_call

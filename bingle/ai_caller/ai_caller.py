@@ -27,13 +27,16 @@ class AICaller(AICallDataFormatter):
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True) -> AICallSummary:
+    def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True,
+                 **kwargs) -> AICallSummary:
         api_spec = self._load_ai_api_spec()
         _model = api_spec.default['model'] if model is None else model
 
         try:
             # Payload 세팅.
-            payload = self._get_payload(default=api_spec.default, messages=messages, model=_model)
+            default_params = kwargs.copy()
+            default_params.update(api_spec.default)
+            payload = self._get_payload(default=default_params, messages=messages, model=_model)
 
             # API Call
             response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
