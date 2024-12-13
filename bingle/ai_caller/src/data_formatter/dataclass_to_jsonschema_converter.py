@@ -12,7 +12,10 @@ class DataclassToJsonschemaConverter:
             "properties": {
                 field.name: self._parse_field(field.type) for field in fields(dataclass)
             },
-            "required": [field.name for field in fields(dataclass)],
+            "required": [
+                f.name for f in fields(dataclass)
+                if f.default is MISSING and f.default_factory is MISSING
+            ],
             "additionalProperties": False
         }
 

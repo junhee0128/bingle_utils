@@ -16,3 +16,7 @@ class Prompt:
 
     def to_dict(self):
         return {'role': self.role, 'content': [c.to_dict() for c in self.content]}
+
+    def copy(self):
+        return Prompt(
+            **{"role": self.role, "content": self.content if isinstance(self.content, str) else self.content.copy()})

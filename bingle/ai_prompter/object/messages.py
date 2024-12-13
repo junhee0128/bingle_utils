@@ -32,4 +32,4 @@ class Messages:
         return prompts
 
     def copy(self):
-        return Messages(prompts=self.prompts)
+        return Messages(prompts=self.prompts.copy())
