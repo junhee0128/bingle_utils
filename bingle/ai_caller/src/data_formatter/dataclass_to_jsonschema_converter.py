@@ -1,5 +1,5 @@
 from dataclasses import fields, is_dataclass
-from typing import Type, Any, get_origin, get_args
+from typing import Literal, Type, Any, get_origin, get_args
 
 
 class DataclassToJsonschemaConverter:
@@ -45,6 +45,11 @@ class DataclassToJsonschemaConverter:
             }
         elif origin is None and isinstance(field_type, type) and issubclass(field_type, str):
             return {"type": "string"}
+        elif origin is Literal and args:
+            return {
+                "type": "string",
+                "enum": list(args)
+            }
         elif is_dataclass(field_type):
             return {
                 "type": "object",
