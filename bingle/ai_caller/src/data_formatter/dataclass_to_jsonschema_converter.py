@@ -1,4 +1,4 @@
-from dataclasses import fields, is_dataclass
+from dataclasses import fields, is_dataclass, MISSING
 from typing import Literal, Type, Any, get_origin, get_args
 
 
@@ -56,7 +56,10 @@ class DataclassToJsonschemaConverter:
                 "properties": {
                     f.name: self._parse_field(f.type) for f in fields(field_type)
                 },
-                "required": [f.name for f in fields(field_type)],
+                "required": [
+                    f.name for f in fields(field_type)
+                    if f.default is MISSING and f.default_factory is MISSING
+                ],
                 "additionalProperties": False
             }
         else:
