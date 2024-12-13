@@ -30,3 +30,6 @@ class Messages:
         if exclude_roles is not None:
             prompts = [p for p in prompts if p.role not in exclude_roles]
         return prompts
+
+    def copy(self):
+        return Messages(prompts=self.prompts)
