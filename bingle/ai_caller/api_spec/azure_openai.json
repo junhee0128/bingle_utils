@@ -17,7 +17,7 @@
     "gpt-4o"
   ],
   "uri_params": {
-    "api_version": "2024-02-15-preview",
+    "api_version": "2024-08-01-preview",
     "endpoint": "",
     "deployment-id": "gpt-4o-mini"
   }
