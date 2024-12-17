@@ -46,8 +46,11 @@ class DataclassToJsonschemaConverter:
                 "type": "array",
                 "items": self._parse_field(args[0])
             }
-        elif origin is None and isinstance(field_type, type) and issubclass(field_type, str):
-            return {"type": "string"}
+        elif origin is None and isinstance(field_type, type):
+            if issubclass(field_type, str):
+                return {"type": "string"}
+            elif issubclass(field_type, bool):
+                return {"type": "boolean"}
         elif origin is Literal and args:
             return {
                 "type": "string",
