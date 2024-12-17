@@ -2,18 +2,18 @@ import os
 import shutil
 import traceback
 from typing import List, Dict
-from bingle.utils import APIClient
+from bingle.utils import APIClient, retry_on_exception
 from .src.call_object import AICallSummary
 from .src.ai_api_spec import AIAPISpec
-from .src.call_data_formatter import AICallDataFormatter
+from .src.openai_dataformatter import OpenAIDataFormatter
 
 
-class AICaller(AICallDataFormatter):
+class AICaller(OpenAIDataFormatter):
     APIKEY_ENV_NAME: str = "BINGLE_APIKEY"
     PROVIDERS: List[str] = ["openai", "llamaapi", "perplexity", "anthropic", "xai", "azure_openai"]
 
     def __init__(self, provider: str, service: str, apikey: str = None, api_spec_dir: str = None):
-        AICallDataFormatter.__init__(self)
+        OpenAIDataFormatter.__init__(self)
         if provider in self.list_providers():
             self.provider = provider
             self.service = service
@@ -27,6 +27,7 @@ class AICaller(AICallDataFormatter):
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
+    @retry_on_exception(max_attempts=5, wait_time=2)
     def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True,
                  **kwargs) -> AICallSummary:
         api_spec = self._load_ai_api_spec()
@@ -42,8 +43,8 @@ class AICaller(AICallDataFormatter):
             response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
 
             if standardize_format and self.provider == 'anthropic':
-                payload = self.convert_anthropic_payload(payload=payload)
-                response = self.convert_anthropic_response(response=response)
+                payload = self.convert_payload(payload=payload)
+                response = self.convert_response(response=response)
 
             summary = AICallSummary(provider=self.provider, service=self.service, model=_model, success=True)
             summary.insert_payload(payload)

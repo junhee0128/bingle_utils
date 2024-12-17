@@ -16,6 +16,7 @@ setup(
         'pyarrow>=18.1.0',
         'numpy>=1.26.2',
         'requests>=2.32.3',
-        'natsort>=8.4.0'
+        'natsort>=8.4.0',
+        'tenacity>=9.0.0'
     ]
 )
