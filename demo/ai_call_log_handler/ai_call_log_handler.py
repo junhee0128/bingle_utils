@@ -45,7 +45,7 @@ class AICallLogHandler(AICallDBManager):
     def load_summary_table(self) -> pd.DataFrame:
         df_summary = self._load_table(name=self.tb_name_summary).to_pandas()
         df_summary['created'] = df_summary['created'].apply(
-            lambda ts: datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M%S.%f')
+            lambda ts: datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f')
         )
         return df_summary
 

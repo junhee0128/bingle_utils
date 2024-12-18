@@ -27,7 +27,7 @@ class AICaller(OpenAIDataFormatter):
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    @retry_on_exception(max_attempts=5, wait_time=2)
+    @retry_on_exception(max_attempts=10, wait_time=2)
     def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True,
                  **kwargs) -> AICallSummary:
         api_spec = self._load_ai_api_spec()
