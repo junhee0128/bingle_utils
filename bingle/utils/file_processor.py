@@ -57,6 +57,17 @@ class FileProcessor:
             json.dump(obj, f)
 
     @staticmethod
+    def save_pickle(data: Any, filepath: str):
+        with open(filepath, 'wb') as f:
+            pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+
+    @staticmethod
+    def load_pickle(filepath: str):
+        with open(filepath, 'rb') as f:
+            data = pickle.load(f)
+        return data
+
+    @staticmethod
     def load_parquet(filepath: str) -> pd.DataFrame:
         return pd.read_parquet(filepath, engine="fastparquet")
 
