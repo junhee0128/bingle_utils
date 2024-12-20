@@ -1,4 +1,5 @@
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from bingle.exception import APILimitError
 
 
 # Retry Decorator 정의
@@ -12,5 +13,5 @@ def retry_on_exception(max_attempts=10, wait_time=2):
         reraise=True,  # 마지막 exception을 그대로 raise
         stop=stop_after_attempt(max_attempts),  # 최대 재시도 횟수
         wait=wait_exponential(multiplier=wait_time, min=wait_time, max=60),  # 지수적 증가 대기
-        retry=retry_if_exception_type(Exception),  # 재시도할 예외 타입
+        retry=retry_if_exception_type(APILimitError),  # 재시도할 예외 타입
     )

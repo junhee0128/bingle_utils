@@ -1,27 +1,25 @@
 import requests
-from bingle.exception import APIError
+from bingle.exception import APIError, APILimitError
 
 
 class APIClient:
-    @staticmethod
-    def get(url: str, params: dict = None, ssl_verify: bool = True) -> dict:
-        try:
-            response = requests.get(url=url, params=params if params else dict(), verify=ssl_verify)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                raise APIError(f"status code: {response.status_code}, message: {response.text}")
-        except Exception as e:
-            raise e
+    def get(self, url: str, params: dict = None, ssl_verify: bool = True, **kwargs) -> dict:
+        response = requests.get(url=url, params=params if params else dict(), verify=ssl_verify)
+        return self.post_processing(response)
+
+    def post(self, url: str, payload: dict, headers: dict, ssl_verify: bool = True, **kwargs) -> dict:
+        response = requests.post(url=url, json=payload, headers=headers, verify=ssl_verify)
+        return self.post_processing(response)
 
     @staticmethod
-    def post(url: str, payload: dict, headers: dict, ssl_verify: bool = True, **kwargs) -> dict:
-        try:
-            response = requests.post(url=url, json=payload, headers=headers, verify=ssl_verify)
-            response.raise_for_status()
-            if response.status_code == 200:
-                return response.json()
+    def post_processing(response) -> dict:
+        response.raise_for_status()
+        if response.status_code == 200:
+            return response.json()
+        else:
+            err_msg = f"status code: {response.status_code}, message: {response.text}"
+            if response.status_code == 429:
+                print(err_msg)
+                raise APILimitError(err_msg)
             else:
-                raise APIError(f"status code: {response.status_code}, message: {response.text}")
-        except Exception as e:
-            raise e
+                raise APIError(err_msg)

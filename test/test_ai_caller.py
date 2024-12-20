@@ -24,8 +24,8 @@ def test_ai_caller(apikeys: Dict[str, str]) -> dict:
         messages = get_sample_messages()
 
         call_summaries[provider] = ai_caller.complete(messages=messages)
-
-        print(f"[{provider}] {call_summaries[provider].response}")
+        if call_summaries[provider].response:
+            print(f"[{provider}] {call_summaries[provider].response}")
 
     return call_summaries
 

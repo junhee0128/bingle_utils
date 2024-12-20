@@ -6,6 +6,7 @@ from bingle.utils import APIClient, retry_on_exception
 from .src.call_object import AICallSummary
 from .src.ai_api_spec import AIAPISpec
 from .src.openai_dataformatter import OpenAIDataFormatter
+from bingle.exception import AICallerPrepreparationError, AICallerAPIError, AICallerPostprocessingError
 
 
 class AICaller(OpenAIDataFormatter):
@@ -27,36 +28,53 @@ class AICaller(OpenAIDataFormatter):
     def list_providers(self) -> List[str]:
         return self.PROVIDERS
 
-    @retry_on_exception(max_attempts=10, wait_time=2)
-    def complete(self, messages: List[Dict], model: str = None, model_params: dict = None,
-                 standardize_format: bool = True, **kwargs) -> AICallSummary:
-        api_spec = self._load_ai_api_spec()
-        _model = api_spec.default['model'] if model is None else model
-
+    def complete(self, messages: List[Dict], model: str = None, model_params: dict = None, **kwargs) -> AICallSummary:
         try:
-            # Payload 세팅.
-            default_params = model_params.copy() if isinstance(model_params, dict) else dict()
-            default_params.update(api_spec.default)
-            payload = self._get_payload(default=default_params, messages=messages, model=_model)
+            try:
+                api_spec = self._load_ai_api_spec()
+                model = api_spec.default['model'] if model is None else model
+
+                # Payload 세팅.
+                default_params = model_params.copy() if isinstance(model_params, dict) else dict()
+                default_params.update(api_spec.default)
+                payload = self._get_payload(default=default_params, messages=messages, model=model)
+            except Exception as e:
+                raise AICallerPrepreparationError(e)
 
             # API Call
-            response = APIClient.post(payload=payload, ssl_verify=False, **api_spec.__dict__)
+            try:
+                response = self._call_api(payload=payload, ssl_verify=False, **api_spec.__dict__)
+            except Exception as e:
+                raise AICallerAPIError(e)
 
-            if standardize_format and self.provider == 'anthropic':
-                payload = self.convert_payload(payload=payload)
-                response = self.convert_response(response=response)
+            try:
+                if self.provider == 'anthropic':
+                    payload = self.convert_payload(payload=payload)
+                    response = self.convert_response(response=response)
 
-            summary = AICallSummary(provider=self.provider, service=self.service, model=_model, success=True)
-            summary.insert_payload(payload)
-            summary.insert_response(response)
-            return summary
+                summary = AICallSummary(provider=self.provider, service=self.service, model=model, success=True)
+                summary.insert_payload(payload)
+                summary.insert_response(response)
+            except Exception as e:
+                raise AICallerPostprocessingError(e)
         except Exception as e:
-            return AICallSummary(provider=self.provider, service=self.service, model=_model, success=False,
-                                 error=e.__class__.__name__, message=str(e), traceback=traceback.format_exc())
+            print(f"[{self.provider}] {e.__class__.__name__}")
+            summary = AICallSummary(provider=self.provider, service=self.service, model=model, success=False,
+                                    error=e.__class__.__name__, message=str(e), traceback=traceback.format_exc())
+
+        return summary
 
     def list_models(self) -> List[str]:
         api_spec = self._load_ai_api_spec()
         return api_spec.supported_models
+
+    @retry_on_exception(max_attempts=10, wait_time=1)
+    def _call_api(self, **kwargs):
+        response = APIClient().post(**kwargs)
+        if self.provider == "llamaapi":
+            if isinstance(response, list) and response[1] != 200:
+                raise AICallerAPIError(str(response))
+        return response
 
     def _load_ai_api_spec(self) -> AIAPISpec:
         return AIAPISpec(provider=self.provider, service=self.service,
