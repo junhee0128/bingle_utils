@@ -28,19 +28,19 @@ class AICaller(OpenAIDataFormatter):
         return self.PROVIDERS
 
     @retry_on_exception(max_attempts=10, wait_time=2)
-    def complete(self, messages: List[Dict], model: str = None, standardize_format: bool = True,
-                 **kwargs) -> AICallSummary:
+    def complete(self, messages: List[Dict], model: str = None, model_params: dict = None,
+                 standardize_format: bool = True, **kwargs) -> AICallSummary:
         api_spec = self._load_ai_api_spec()
         _model = api_spec.default['model'] if model is None else model
 
         try:
             # Payload 세팅.
-            default_params = kwargs.copy()
+            default_params = model_params.copy() if isinstance(model_params, dict) else dict()
             default_params.update(api_spec.default)
             payload = self._get_payload(default=default_params, messages=messages, model=_model)
 
             # API Call
-            response = APIClient().post(payload=payload, ssl_verify=False, **api_spec.__dict__)
+            response = APIClient.post(payload=payload, ssl_verify=False, **api_spec.__dict__)
 
             if standardize_format and self.provider == 'anthropic':
                 payload = self.convert_payload(payload=payload)

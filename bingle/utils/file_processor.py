@@ -101,11 +101,3 @@ class FileProcessor:
             filename = filename.replace("__", "_")
         filename = f"{filename}.{extension}"
         return filename
-
-    # filenamer의 배치 버전.
-    def filenamer_batch(self, original_names: list, extension: str = "pdf") -> list:
-        filenames = list()
-        for name in original_names:
-            filename = self.filenamer(original_name=name, extension=extension)
-            filenames.append(filename)
-        return filenames

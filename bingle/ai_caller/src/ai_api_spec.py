@@ -14,7 +14,7 @@ class AIAPISpec:
         if api_spec_dir is None:
             api_spec_dir = self.API_SPEC_DIR
 
-        api_spec = FileProcessor().load_json(filepath=os.path.join(api_spec_dir, f"{provider}.json"))
+        api_spec = FileProcessor.load_json(filepath=os.path.join(api_spec_dir, f"{provider}.json"))
         self.url = api_spec["endpoint_uri"].format_map(
             DefaultKeyDict({"resource_path": api_spec["resource_path"][service]}))
         if "uri_params" in api_spec:

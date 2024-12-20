@@ -35,7 +35,7 @@ def load_credentials(credential_dir: str, providers: List[str] = AICaller.PROVID
     for provider in providers:
         apikey_path = os.path.join(credential_dir, f"{provider}_apikey.txt")
         if os.path.exists(apikey_path):
-            apikeys[provider] = FileProcessor().load_txt(filepath=apikey_path)
+            apikeys[provider] = FileProcessor.load_txt(filepath=apikey_path)
 
     return apikeys
 

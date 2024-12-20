@@ -31,7 +31,7 @@ class Database:
             pa_table = pa.Table.from_pandas(df=empty_df, schema=schema)
             pq.write_table(pa_table, self._get_table_path(name=name))
             metadata = self._generate_metadata(row_class=row_class, primary_keys=primary_keys)
-            FileProcessor().save_json(filepath=self._get_table_meta_path(name=name), obj=metadata)
+            FileProcessor.save_json(filepath=self._get_table_meta_path(name=name), obj=metadata)
             print(f"Table '{name}' created successfully.")
 
     def show_tables(self):
