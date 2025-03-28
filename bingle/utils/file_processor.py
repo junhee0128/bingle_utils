@@ -36,7 +36,7 @@ class FileProcessor:
 
     @staticmethod
     def save_txt(filepath: str, obj: str, mode: str = "w", encoding: str = "utf-8"):
-        if not os.path.exists(filepath):
+        if os.path.dirname(filepath) and not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         if encoding is not None:
             with open(filepath, mode, encoding=encoding) as f:
