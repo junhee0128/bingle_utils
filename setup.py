@@ -13,9 +13,9 @@ setup(
     include_package_data=True,
     install_requires=[
         'pandas>=2.2.3',
-        'pyarrow>=18.1.0',
-        'numpy>=1.26.2',
-        'requests>=2.32.3',
+        'pyarrow>=19.0.1',
+        'numpy>=2.2.4',
+        'requests>=2.233.3',
         'natsort>=8.4.0',
         'tenacity>=9.0.0',
         'python-docx>=1.1.2'
