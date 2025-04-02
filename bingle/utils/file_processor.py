@@ -1,8 +1,15 @@
 import os
 import json
+import csv
 import pickle
-from typing import Any
+import logging
 import pandas as pd
+from typing import Any, Union
+import xml.etree.ElementTree as ET
+from docx import Document
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 class FileProcessor:
@@ -11,28 +18,46 @@ class FileProcessor:
         return filepath is not None and os.path.exists(filepath)
 
     @staticmethod
-    def load_txt(filepath: str, how: str = "whole") -> str:
-        content = None
-        for encoding in ["cp949", "utf-16", "utf-8"]:
-            try:
-                with open(filepath, "r", encoding=encoding) as f:
-                    if how == "whole":
-                        content = f.read()
-                        break
-                    elif how == "linebyline":
-                        content_list = f.readlines()
-                        if isinstance(content_list, list):
-                            content = "\n".join(content_list)
-                        break
+    def load_file(filepath: str) -> Union[str, pd.DataFrame, None]:
+        try:
+            if not os.path.exists(filepath):
+                print(f"File does not exist: {filepath}")
+                return None
+
+            _, file_ext = os.path.splitext(filepath)
+
+            for encoding in ["utf-8", "cp949", "utf-16", "unicode"]:
+                try:
+                    if file_ext in (".txt", ".log", ".md"):
+                        with open(filepath, "r", encoding=encoding) as f:
+                            return f.read()
+                    elif file_ext == ".json":
+                        with open(filepath, "r", encoding=encoding) as f:
+                            return json.dumps(json.load(f), indent=4, ensure_ascii=False)
+                    elif file_ext == ".pkl":
+                        with open(filepath, "rb") as f:
+                            return pickle.load(f)
+                    elif file_ext == ".xml":
+                        tree = ET.parse(filepath)
+                        return ET.tostring(tree.getroot(), encoding="unicode")
+                    elif file_ext in (".csv", ".tsv"):
+                        delimiter = "," if file_ext == ".csv" else "\t"
+                        with open(filepath, "r", encoding=encoding) as f:
+                            reader = csv.reader(f, delimiter=delimiter)
+                            return "\n".join([delimiter.join(row) for row in reader])
                     else:
-                        raise NotImplementedError
-            except Exception as e:
-                pass
+                        pass
+                except Exception as e:
+                    pass
 
-        if content is None:
-            raise FileNotFoundError(f"Failed to read '{filepath}'.")
-
-        return content
+            if file_ext in (".docx", ".doc"):
+                return "\n".join([p.text for p in Document(filepath).paragraphs])
+            elif file_ext == ".parquet":
+                return pd.read_parquet(filepath, engine="fastparquet")
+            else:
+                raise Exception(f"Unsupported file format: {file_ext}")
+        except Exception as e:
+            raise e
 
     @staticmethod
     def save_txt(filepath: str, obj: str, mode: str = "w", encoding: str = "utf-8"):
@@ -46,12 +71,6 @@ class FileProcessor:
                 f.write(obj)
 
     @staticmethod
-    def load_json(filepath: str) -> dict:
-        with open(filepath, 'r') as f:
-            contents = json.load(f)
-        return contents
-
-    @staticmethod
     def save_json(filepath: str, obj: dict):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -62,16 +81,6 @@ class FileProcessor:
     def save_pickle(data: Any, filepath: str):
         with open(filepath, 'wb') as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
-
-    @staticmethod
-    def load_pickle(filepath: str):
-        with open(filepath, 'rb') as f:
-            data = pickle.load(f)
-        return data
-
-    @staticmethod
-    def load_parquet(filepath: str) -> pd.DataFrame:
-        return pd.read_parquet(filepath, engine="fastparquet")
 
     @staticmethod
     def save_parquet(obj: pd.DataFrame, filepath: str):
@@ -101,3 +110,47 @@ class FileProcessor:
             filename = filename.replace("__", "_")
         filename = f"{filename}.{extension}"
         return filename
+
+    @staticmethod
+    def load_json(filepath: str) -> dict:
+        logger.warning("This method will be deprecated.")
+        with open(filepath, 'r') as f:
+            contents = json.load(f)
+        return contents
+
+    @staticmethod
+    def load_pickle(filepath: str):
+        logger.warning("This method will be deprecated.")
+        with open(filepath, 'rb') as f:
+            data = pickle.load(f)
+        return data
+
+    @staticmethod
+    def load_parquet(filepath: str) -> pd.DataFrame:
+        logger.warning("This method will be deprecated.")
+        return pd.read_parquet(filepath, engine="fastparquet")
+
+    @staticmethod
+    def load_txt(filepath: str, how: str = "whole") -> str:
+        logger.warning("This method will be deprecated.")
+        content = None
+        for encoding in ["cp949", "utf-16", "utf-8"]:
+            try:
+                with open(filepath, "r", encoding=encoding) as f:
+                    if how == "whole":
+                        content = f.read()
+                        break
+                    elif how == "linebyline":
+                        content_list = f.readlines()
+                        if isinstance(content_list, list):
+                            content = "\n".join(content_list)
+                        break
+                    else:
+                        raise NotImplementedError
+            except Exception as e:
+                pass
+
+        if content is None:
+            raise FileNotFoundError(f"Failed to read '{filepath}'.")
+
+        return content

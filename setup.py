@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bingle',
-    version='0.1.7',
+    version='0.1.8',
     author='junhee',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -17,6 +17,7 @@ setup(
         'numpy>=1.26.2',
         'requests>=2.32.3',
         'natsort>=8.4.0',
-        'tenacity>=9.0.0'
+        'tenacity>=9.0.0',
+        'python-docx>=1.1.2'
     ]
 )
