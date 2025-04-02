@@ -5,8 +5,11 @@ import pickle
 import logging
 import pandas as pd
 from typing import Any, Union
+from pathlib import Path
 import xml.etree.ElementTree as ET
 from docx import Document
+
+PathLike = Union[str, Path]
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -14,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 class FileProcessor:
     @staticmethod
-    def is_exist(filepath: str) -> bool:
+    def is_exist(filepath: PathLike) -> bool:
         return filepath is not None and os.path.exists(filepath)
 
     @staticmethod
-    def load_file(filepath: str) -> Union[str, pd.DataFrame, None]:
+    def load_file(filepath: PathLike) -> Union[str, pd.DataFrame, None]:
         try:
             if not os.path.exists(filepath):
                 print(f"File does not exist: {filepath}")
@@ -60,7 +63,7 @@ class FileProcessor:
             raise e
 
     @staticmethod
-    def save_txt(filepath: str, obj: str, mode: str = "w", encoding: str = "utf-8"):
+    def save_txt(filepath: PathLike, obj: str, mode: str = "w", encoding: str = "utf-8"):
         if os.path.dirname(filepath) and not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         if encoding is not None:
@@ -71,25 +74,25 @@ class FileProcessor:
                 f.write(obj)
 
     @staticmethod
-    def save_json(filepath: str, obj: dict):
+    def save_json(filepath: PathLike, obj: dict):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w') as f:
             json.dump(obj, f)
 
     @staticmethod
-    def save_pickle(data: Any, filepath: str):
+    def save_pickle(filepath: PathLike, data: Any):
         with open(filepath, 'wb') as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
-    def save_parquet(obj: pd.DataFrame, filepath: str):
+    def save_parquet(filepath: PathLike, obj: pd.DataFrame):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         obj.to_parquet(filepath)
 
     @staticmethod
-    def load_mp3(filepath: str):
+    def load_mp3(filepath: PathLike):
         with open(filepath, 'rb') as audio_file:
             audio_bytes = audio_file.read()
         return audio_bytes
@@ -112,26 +115,26 @@ class FileProcessor:
         return filename
 
     @staticmethod
-    def load_json(filepath: str) -> dict:
+    def load_json(filepath: PathLike) -> dict:
         logger.warning("This method will be deprecated.")
         with open(filepath, 'r') as f:
             contents = json.load(f)
         return contents
 
     @staticmethod
-    def load_pickle(filepath: str):
+    def load_pickle(filepath: PathLike):
         logger.warning("This method will be deprecated.")
         with open(filepath, 'rb') as f:
             data = pickle.load(f)
         return data
 
     @staticmethod
-    def load_parquet(filepath: str) -> pd.DataFrame:
+    def load_parquet(filepath: PathLike) -> pd.DataFrame:
         logger.warning("This method will be deprecated.")
         return pd.read_parquet(filepath, engine="fastparquet")
 
     @staticmethod
-    def load_txt(filepath: str, how: str = "whole") -> str:
+    def load_txt(filepath: PathLike, how: str = "whole") -> str:
         logger.warning("This method will be deprecated.")
         content = None
         for encoding in ["cp949", "utf-16", "utf-8"]:

@@ -7,8 +7,11 @@
     * FileProcessor
         * 목적: 자주 사용하는 파일 처리 함수 모음.
         * 함수 구성
-            * load_json(filepath: str) -> dict: json 파일 읽기.
-            * save_json(filepath: str, obj: dict): json 파일 쓰기.
+            * load_file(filepath: PathLike): .txt, .log, .md, .json, .pkl, .xml, .csv, .tsv, .docx, .doc, .parquet 파일 읽기.
+            * save_txt(filepath: PathLike, obj: str): .txt 파일 쓰기.
+            * save_json(filepath: PathLike, obj: dict): .json 파일 쓰기.
+            * save_pickle(filepath: PathLike, obj: Any): .pkl 파일 쓰기.
+            * save_parquet(filepath: PathLike, obj: pd.DataFrame): .parquet 파일 쓰기.
 
 ## API Client
 

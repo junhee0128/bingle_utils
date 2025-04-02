@@ -12,7 +12,7 @@ class MetaTable(Table):
         self.table_path = table_path
         self.meta_path = meta_path
 
-        self.metadata = FileProcessor.load_json(filepath=self.meta_path)
+        self.metadata = FileProcessor.load_file(filepath=self.meta_path)
         super().__init__(file_path=self.table_path, primary_keys=self.metadata["primary_keys"])
         self.row_class = self._generate_row_class()
 
