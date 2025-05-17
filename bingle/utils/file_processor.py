@@ -21,7 +21,7 @@ class FileProcessor:
         return filepath is not None and os.path.exists(filepath)
 
     @staticmethod
-    def load_file(filepath: PathLike) -> Union[str, pd.DataFrame, None]:
+    def load_file(filepath: PathLike) -> Union[str, dict, pd.DataFrame, None]:
         try:
             if not os.path.exists(filepath):
                 print(f"File does not exist: {filepath}")
@@ -36,7 +36,8 @@ class FileProcessor:
                             return f.read()
                     elif file_ext == ".json":
                         with open(filepath, "r", encoding=encoding) as f:
-                            return json.dumps(json.load(f), indent=4, ensure_ascii=False)
+                            return json.load(f)
+                            # return json.dumps(json.load(f), indent=4, ensure_ascii=False)
                     elif file_ext == ".pkl":
                         with open(filepath, "rb") as f:
                             return pickle.load(f)
