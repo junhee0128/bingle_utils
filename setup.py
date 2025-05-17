@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bingle',
-    version='0.1.8',
+    version='0.1.9',
     author='junhee',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
