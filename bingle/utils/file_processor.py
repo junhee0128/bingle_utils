@@ -75,10 +75,10 @@ class FileProcessor:
                 f.write(obj)
 
     @staticmethod
-    def save_json(filepath: PathLike, obj: dict):
+    def save_json(filepath: PathLike, obj: dict, mode: str = "w", encoding: str = 'utf-8'):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, mode, encoding=encoding) as f:
             json.dump(obj, f, ensure_ascii=False)
 
     @staticmethod
