@@ -4,7 +4,7 @@ import csv
 import pickle
 import logging
 import pandas as pd
-from typing import Any, Union
+from typing import Any, Union, Dict, List
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from docx import Document
@@ -75,7 +75,7 @@ class FileProcessor:
                 f.write(obj)
 
     @staticmethod
-    def save_json(filepath: PathLike, obj: dict):
+    def save_json(filepath: PathLike, obj: Union[List, Dict]):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
