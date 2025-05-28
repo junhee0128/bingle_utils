@@ -21,7 +21,7 @@ class FileProcessor:
         return filepath is not None and os.path.exists(filepath)
 
     @staticmethod
-    def load_file(filepath: PathLike) -> Union[str, dict, pd.DataFrame, None]:
+    def load_file(filepath: PathLike) -> Union[str, Dict, pd.DataFrame, None]:
         try:
             if not os.path.exists(filepath):
                 print(f"File does not exist: {filepath}")
@@ -108,7 +108,7 @@ class FileProcessor:
 
     # original_name 에서 알파벳 캐릭터만 소문자로 남기고 나머지는 모두 _로 변환함. 단, _가 연속으로 있을 경우 한 개만 남김.
     @staticmethod
-    def filenamer(original_name: list, extension: str) -> str:
+    def filenamer(original_name: List, extension: str) -> str:
         filename = "".join([char if char.isalpha() else "_" for char in original_name]).lower()
         while "__" in filename:
             filename = filename.replace("__", "_")
@@ -116,7 +116,7 @@ class FileProcessor:
         return filename
 
     @staticmethod
-    def load_json(filepath: PathLike) -> dict:
+    def load_json(filepath: PathLike) -> Dict:
         logger.warning("This method will be deprecated.")
         with open(filepath, 'r') as f:
             contents = json.load(f)
