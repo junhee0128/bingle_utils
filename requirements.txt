@@ -5,3 +5,4 @@ requests>=2.32.3
 natsort>=8.4.0
 tenacity>=9.0.0
 python-docx>=1.1.2
+yaml>=6.0.2

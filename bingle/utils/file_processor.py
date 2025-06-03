@@ -1,5 +1,6 @@
 import os
 import json
+import yaml
 import csv
 import pickle
 import logging
@@ -44,6 +45,9 @@ class FileProcessor:
                     elif file_ext == ".xml":
                         tree = ET.parse(filepath)
                         return ET.tostring(tree.getroot(), encoding="unicode")
+                    elif file_ext == ".yaml":
+                        with open(filepath, "r", encoding=encoding) as f:
+                            return yaml.safe_load(f)
                     elif file_ext in (".csv", ".tsv"):
                         delimiter = "," if file_ext == ".csv" else "\t"
                         with open(filepath, "r", encoding=encoding) as f:
@@ -64,8 +68,19 @@ class FileProcessor:
             raise e
 
     @staticmethod
+    def load_parquet(filepath: PathLike) -> pd.DataFrame:
+        logger.warning("This method will be deprecated.")
+        return pd.read_parquet(filepath, engine="fastparquet")
+
+    @staticmethod
+    def load_mp3(filepath: PathLike):
+        with open(filepath, 'rb') as audio_file:
+            audio_bytes = audio_file.read()
+        return audio_bytes
+
+    @staticmethod
     def save_txt(filepath: PathLike, obj: str, mode: str = "w", encoding: str = "utf-8"):
-        if os.path.dirname(filepath) and not os.path.exists(filepath):
+        if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         if encoding is not None:
             with open(filepath, mode, encoding=encoding) as f:
@@ -78,8 +93,21 @@ class FileProcessor:
     def save_json(filepath: PathLike, obj: Union[List, Dict], mode: str = "w", encoding: str = 'utf-8'):
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, mode, encoding=encoding) as f:
-            json.dump(obj, f, ensure_ascii=False)
+        with open(filepath, mode, encoding=encoding) as json_file:
+            json.dump(obj, json_file, ensure_ascii=False)
+
+    @staticmethod
+    def save_yaml(filepath: PathLike, obj: Union[List, Dict], mode: str = "w", encoding: str = 'utf-8',
+                  indent: int = 2):
+        if not os.path.exists(filepath):
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, mode, encoding=encoding) as yaml_file:
+            yaml.dump(obj, yaml_file,
+                      default_flow_style=False,
+                      allow_unicode=True,
+                      indent=indent,
+                      sort_keys=False,  # 딕셔너리 키 순서 유지
+                      width=1000)  # 긴 줄 자동 줄바꿈 방지
 
     @staticmethod
     def save_pickle(filepath: PathLike, data: Any):
@@ -91,12 +119,6 @@ class FileProcessor:
         if not os.path.exists(filepath):
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
         obj.to_parquet(filepath)
-
-    @staticmethod
-    def load_mp3(filepath: PathLike):
-        with open(filepath, 'rb') as audio_file:
-            audio_bytes = audio_file.read()
-        return audio_bytes
 
     @staticmethod
     def clear_files(dir: str, extension: str):
@@ -115,46 +137,41 @@ class FileProcessor:
         filename = f"{filename}.{extension}"
         return filename
 
-    @staticmethod
-    def load_json(filepath: PathLike) -> Dict:
-        logger.warning("This method will be deprecated.")
-        with open(filepath, 'r') as f:
-            contents = json.load(f)
-        return contents
-
-    @staticmethod
-    def load_pickle(filepath: PathLike):
-        logger.warning("This method will be deprecated.")
-        with open(filepath, 'rb') as f:
-            data = pickle.load(f)
-        return data
-
-    @staticmethod
-    def load_parquet(filepath: PathLike) -> pd.DataFrame:
-        logger.warning("This method will be deprecated.")
-        return pd.read_parquet(filepath, engine="fastparquet")
-
-    @staticmethod
-    def load_txt(filepath: PathLike, how: str = "whole") -> str:
-        logger.warning("This method will be deprecated.")
-        content = None
-        for encoding in ["cp949", "utf-16", "utf-8"]:
-            try:
-                with open(filepath, "r", encoding=encoding) as f:
-                    if how == "whole":
-                        content = f.read()
-                        break
-                    elif how == "linebyline":
-                        content_list = f.readlines()
-                        if isinstance(content_list, list):
-                            content = "\n".join(content_list)
-                        break
-                    else:
-                        raise NotImplementedError
-            except Exception as e:
-                pass
-
-        if content is None:
-            raise FileNotFoundError(f"Failed to read '{filepath}'.")
-
-        return content
+    # @staticmethod
+    # def load_json(filepath: PathLike) -> Dict:
+    #     logger.warning("This method will be deprecated.")
+    #     with open(filepath, 'r') as f:
+    #         contents = json.load(f)
+    #     return contents
+    #
+    # @staticmethod
+    # def load_pickle(filepath: PathLike):
+    #     logger.warning("This method will be deprecated.")
+    #     with open(filepath, 'rb') as f:
+    #         data = pickle.load(f)
+    #     return data
+    #
+    # @staticmethod
+    # def load_txt(filepath: PathLike, how: str = "whole") -> str:
+    #     logger.warning("This method will be deprecated.")
+    #     content = None
+    #     for encoding in ["cp949", "utf-16", "utf-8"]:
+    #         try:
+    #             with open(filepath, "r", encoding=encoding) as f:
+    #                 if how == "whole":
+    #                     content = f.read()
+    #                     break
+    #                 elif how == "linebyline":
+    #                     content_list = f.readlines()
+    #                     if isinstance(content_list, list):
+    #                         content = "\n".join(content_list)
+    #                     break
+    #                 else:
+    #                     raise NotImplementedError
+    #         except Exception as e:
+    #             pass
+    #
+    #     if content is None:
+    #         raise FileNotFoundError(f"Failed to read '{filepath}'.")
+    #
+    #     return content
